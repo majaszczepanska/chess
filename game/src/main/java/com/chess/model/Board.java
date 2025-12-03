@@ -80,7 +80,7 @@ public class Board {
                                 setPiece(sx, sy, null);
                                 boolean kingSafe = !isCheck(isWhiteTurn);
                                 setPiece(sx, sy, piece);
-                                setPiece(targetX, targetY, null);
+                                setPiece(targetX, targetY, target);
                                 if (kingSafe){
                                     return true;
                                 }
@@ -93,7 +93,9 @@ public class Board {
         return false;
     }
 
-    
+
+
+
     //create board with pieces in starting positions
     private void initializeBoard() {
         // Black pieces
