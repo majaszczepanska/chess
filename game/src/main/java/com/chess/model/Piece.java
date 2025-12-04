@@ -11,6 +11,15 @@ public abstract class Piece {
         return isWhite;
     }
 
+    //
+    boolean hasMoved;
+    public boolean hasMoved() { 
+        return hasMoved; 
+    }
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
+
     public abstract String getSymbol();
 
     public abstract boolean isValidMove(int startX, int startY, int endX, int endY, Board board);
