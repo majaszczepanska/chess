@@ -1,12 +1,14 @@
 package com.chess.view;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.chess.model.Board;
@@ -15,14 +17,18 @@ import com.chess.model.Piece;
 public class GameWindow extends JFrame {
 
     private final JButton[][] squares = new JButton[8][8];
+    private JPanel capturedWhitePanel;
+    private JPanel capturedBlackPanel;
     private Board board;
     private JPanel sidePanel;
     private JButton restartButton;
+    private JLabel label;
     private Piece selectedPiece = null;
     private boolean isWhiteTurn = true;
     private int selectedX = -1;
     private int selectedY = -1;
     private Color currentColor = null;
+
 
     //LAST MOVE
     private int lastMoveStartX = -1;
@@ -49,20 +55,51 @@ public class GameWindow extends JFrame {
 
     public GameWindow() {
         setTitle("Chess Game - White starts");
-        setSize(1000, 1000);
+        setSize(1200, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(8, 8));
+        setLayout(new java.awt.BorderLayout());
 
-        //create new board
         board = new Board();
-        drawBoard();
-        getContentPane().setBackground(background);
+        add(createBoardPanel(), java.awt.BorderLayout.CENTER);
+        
+        JPanel sidePanel = new JPanel();
+        
+        //SIDE PANEL
+        sidePanel.setBackground(background);
+        sidePanel.setPreferredSize(new java.awt.Dimension(300, 0));
+        sidePanel.setLayout(null);
+
+        //BUTTON RESTART
+        JButton restartButton = new JButton("New game");
+        restartButton.setBounds(50,400,200,100);
+        restartButton.setFont(new Font("Sans serif", Font.BOLD, 30));
+        restartButton.setBackground(lightSquare);
+        restartButton.addActionListener(e -> restartGame());
+        sidePanel.add(restartButton);
+
+        //CAPTURED WHITE PANEL
+        capturedWhitePanel = new JPanel();
+        capturedWhitePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        capturedWhitePanel.setBackground(lightSquare);
+        capturedWhitePanel.setBounds(25, 25, 250, 250);
+        sidePanel.add(capturedWhitePanel);
+
+        //CAPTURED BLACK PANEL
+        capturedBlackPanel = new JPanel();
+        capturedBlackPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        capturedBlackPanel.setBackground(lightSquare);
+        capturedBlackPanel.setBounds(25, 600, 250, 250);
+        sidePanel.add(capturedBlackPanel);
+
+
+        add(sidePanel, java.awt.BorderLayout.EAST);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     //PAIN THE BOARD
-    private void drawBoard() {   
+    private javax.swing.JPanel createBoardPanel() { 
+        javax.swing.JPanel boardPanel = new javax.swing.JPanel(new GridLayout(8,8));  
         for (int y=0; y<8; y++){
             for (int x=0; x<8; x++){
                 squares[y][x] = new JButton();
@@ -83,10 +120,11 @@ public class GameWindow extends JFrame {
                 squares[y][x].addActionListener(e -> handleClick(finalX, finalY));
 
                 //add button to the frame
-                add(squares[y][x]);
+                boardPanel.add(squares[y][x]);
             }
         }
         refreshBoard();
+        return boardPanel;
     }
 
     //UPDATE THE BOARD - ADD PIECES
@@ -168,6 +206,21 @@ public class GameWindow extends JFrame {
                 lastMoveStartY = selectedY;
                 lastMoveEndX = targetX;
                 lastMoveEndY = targetY;
+
+                //side panel
+                if (target != null){
+                    JLabel label = new JLabel(target.getSymbol());
+                    label.setFont(new Font("Serif", Font.PLAIN, 40));
+                    if (target.isWhite()){
+                        label.setForeground(Color.white);
+                        capturedWhitePanel.add(label);
+                    } else {
+                        label.setForeground(Color.black);
+                        capturedBlackPanel.add(label);
+                    }
+                }
+                
+                
                 //put selected piece to target square and remove from original square
                 board.setPiece(targetX, targetY, selectedPiece);
                 board.setPiece(selectedX, selectedY, null);
@@ -347,6 +400,21 @@ public class GameWindow extends JFrame {
 
         }
         */      
+    }
+
+    private void restartGame(){
+        board = new Board();
+        isWhiteTurn = true;
+        selectedPiece = null;
+        selectedX = -1;
+        selectedY = -1;
+        capturedWhitePanel.removeAll();
+        capturedWhitePanel.repaint();
+        capturedBlackPanel.removeAll();
+        capturedBlackPanel.repaint();
+        setTitle("Chess Game - White starts");
+        refreshBoard();
+        resetSelection();
     }
     
     /* 
